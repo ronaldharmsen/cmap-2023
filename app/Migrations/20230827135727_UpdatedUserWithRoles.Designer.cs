@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using app.Areas.Identity.Data;
 
@@ -11,9 +12,11 @@ using app.Areas.Identity.Data;
 namespace app.Migrations
 {
     [DbContext(typeof(appIdentityDbContext))]
-    partial class appIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230827135727_UpdatedUserWithRoles")]
+    partial class UpdatedUserWithRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
