@@ -7,7 +7,7 @@ RUN bash ./installSQLtools.sh \
 
 RUN dotnet tool install --global dotnet-aspnet-codegenerator
 RUN dotnet tool install --global dotnet-ef
-
+RUN dotnet dev-certs https
 
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
