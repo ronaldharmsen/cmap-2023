@@ -22,7 +22,11 @@ builder.Services.AddAuthorization()
     .AddAuthorization(options =>
 {
     options.AddPolicy("OnlyAdmins", policy =>
-        policy.RequireClaim(ClaimTypes.Role, "Admin") 
+        policy.RequireClaim(ClaimTypes.Role, "Admin")
+    );
+
+    options.AddPolicy("AuthenticatedUser", policy =>
+        policy.RequireAuthenticatedUser()
     );
 });
 

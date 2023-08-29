@@ -1,6 +1,11 @@
 @using Microsoft.AspNetCore.Identity
 @using IdentityManagerUI.Models
 
-    <li policy="OnlyAdmins" class="nav-item">
-        <a id="manage" class="nav-link text-dark" asp-area="Management" asp-controller="Access" asp-action="Users" title="Manage">Manage accounts</a>
-    </li>
+<li policy="OnlyAdmins" class="nav-item">
+    <a id="manage" class="nav-link text-dark" asp-area="Management" asp-controller="Access" asp-action="Users"
+        title="Manage">Manage accounts</a>
+</li>
+<li policy="AuthenticatedUser" class="nav-item">
+    <a id="manage" class="nav-link text-dark" asp-area="" asp-controller="Vehicle" asp-action="Index"
+        title="Manage">Manage vehicles</a>
+</li>
