@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Vehicles";
+}
+<table class="vehicles" border="1">
+    <thead>
+        <td>VIN</td>
+        <td>locked</td>
+        <td>engine running</td>
+        <td>action</td>
+    </thead>
+    <tbody>
+
+    </tbody>
+</table>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script lang="javascript">
+    $(document).ready(function () {
+        $(document.body).on("click", "button", function (element) {
+            data = $(this).parent().parent().data();
+            action = "unlock";
+            if (data.lock)
+                action = "lock";
+            
+            $(".vehicles tbody").children().remove();
+
+            $.post("api/vehicle/" + data.vin + "/" + action)
+                .then(function () {
+                    refresh();
+                });
+        });
+
+        function refresh() {
+            $.get("api/vehicle/my", function (data) {
+                $.each(data, function (idx, vehicle) {
+                    $(".vehicles tbody").append(
+                        "<tr data-vin='" + vehicle.vin + "' data-lock='" + !vehicle.locked + "'>" +
+                        "<td>" + vehicle.vin + "</td>" +
+                        "<td>" + vehicle.locked + "</td>" +
+                        "<td>" + vehicle.engineRunning + "</td>" +
+                        "<td><button>(un)lock</td>" +
+                        "</tr>");
+                })
+            });
+        };
+
+        refresh();
+    });
+</script>

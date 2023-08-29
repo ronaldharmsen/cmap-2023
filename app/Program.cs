@@ -2,11 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using app.Areas.Identity.Data;
 using IdentityManagerUI.Models;
 using System.Security.Claims;
+using ApiDemo;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("appIdentityDbContextConnection") ?? throw new InvalidOperationException("Connection string 'appIdentityDbContextConnection' not found.");
 
 builder.Services.AddDbContext<appIdentityDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<VehicleContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services
     .AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -56,5 +58,6 @@ app.MapRazorPages();
 
 // making sure the database is there!
 await app.Services.EnsureIdentityDatabaseIsUpToDate();
+await app.Services.EnsureVehicleDatabaseIsUpToDate();
 
 app.Run();
