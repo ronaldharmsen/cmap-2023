@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using app.Areas.Identity.Data;
 using IdentityManagerUI.Models;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,7 +35,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection(); // in the template, but turned off by dev
 app.UseStaticFiles();
 
 app.UseRouting();

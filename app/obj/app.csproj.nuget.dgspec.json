@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/workspaces/dotnet-mssql/app/app.csproj": {}
+    "/workspaces/cmap-2023/app/app.csproj": {}
   },
   "projects": {
-    "/workspaces/dotnet-mssql/app/app.csproj": {
+    "/workspaces/cmap-2023/app/app.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/workspaces/dotnet-mssql/app/app.csproj",
+        "projectUniqueName": "/workspaces/cmap-2023/app/app.csproj",
         "projectName": "app",
-        "projectPath": "/workspaces/dotnet-mssql/app/app.csproj",
+        "projectPath": "/workspaces/cmap-2023/app/app.csproj",
         "packagesPath": "/home/vscode/.nuget/packages/",
-        "outputPath": "/workspaces/dotnet-mssql/app/obj/",
+        "outputPath": "/workspaces/cmap-2023/app/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/vscode/.nuget/NuGet/NuGet.Config"
@@ -39,6 +39,10 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "DependencyCheck.Runner.Tool": {
+              "target": "Package",
+              "version": "[3.2.1, )"
+            },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
               "version": "[7.0.10, )"

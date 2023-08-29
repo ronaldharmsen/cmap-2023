@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "cwGEf4ayfwSZuaCrtmw/khEEYnnEk6RQgSBXjgdMkhgguBt8QCAfNAHWtZp7MZcvoQEPJbJIWpk4DAJi99M4aA==",
+  "dgSpecHash": "wSwVA/HpTezz2u38HunOjE2n9MybaOTymroGnDPny4hv14AhpwrMjzpxPZBPHTtqVRZiACgaPT34YARpWYe3Sg==",
   "success": true,
-  "projectFilePath": "/workspaces/dotnet-mssql/app/app.csproj",
+  "projectFilePath": "/workspaces/cmap-2023/app/app.csproj",
   "expectedPackageFiles": [
     "/home/vscode/.nuget/packages/azure.core/1.24.0/azure.core.1.24.0.nupkg.sha512",
     "/home/vscode/.nuget/packages/azure.identity/1.6.0/azure.identity.1.6.0.nupkg.sha512",
+    "/home/vscode/.nuget/packages/dependencycheck.runner.tool/3.2.1/dependencycheck.runner.tool.3.2.1.nupkg.sha512",
     "/home/vscode/.nuget/packages/humanizer/2.14.1/humanizer.2.14.1.nupkg.sha512",
     "/home/vscode/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/vscode/.nuget/packages/humanizer.core.af/2.14.1/humanizer.core.af.2.14.1.nupkg.sha512",

@@ -19,21 +19,26 @@ public static class ApplicationStartupExtensions
         var manager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
         var user = await manager.FindByEmailAsync(Email);
-        if (user == null)
+        if (user != null)
         {
-            var result = await manager.CreateAsync(new ApplicationUser()
-            {
-                UserName = Email,
-                Email = Email,
-                EmailConfirmed = true
-            });
-            if (!result.Succeeded)
-                throw new InvalidProgramException("Could not create default admin");
-
-            user = await manager.FindByEmailAsync(Email);
-            await manager.AddPasswordAsync(user, "P@ssw0rd");
-            await manager.AddClaimAsync(user, new System.Security.Claims.Claim(ClaimTypes.Role, "Admin"));
-
+            // default admin exists
+            return; 
         }
+
+        var result = await manager.CreateAsync(new ApplicationUser()
+        {
+            UserName = Email,
+            Email = Email,
+            EmailConfirmed = true
+        });
+        if (!result.Succeeded)
+            throw new InvalidProgramException("Could not create default admin");
+
+        user = await manager.FindByEmailAsync(Email);
+        if (user == null)
+            throw new InvalidProgramException("Default admin could not be found in storage");
+
+        await manager.AddPasswordAsync(user, "P@ssw0rd");
+        await manager.AddClaimAsync(user, new System.Security.Claims.Claim(ClaimTypes.Role, "Admin"));
     }
 }

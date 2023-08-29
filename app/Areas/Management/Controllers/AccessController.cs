@@ -15,7 +15,7 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ILogger _logger;
         private readonly Dictionary<string, string> _roles;
-        private readonly Dictionary<string, string> _claimTypes;
+        private readonly Dictionary<string, string?> _claimTypes;
 
         public AccessController(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, ILogger<AccessController> logger)
         {
@@ -23,9 +23,9 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
             _roleManager = roleManager;
             _logger = logger;
 
-            _roles = roleManager.Roles.ToDictionary(r => r.Id, r => r.Name);
+            _roles = roleManager.Roles.ToDictionary(r => r.Id, r => r.Name ?? string.Empty);
             var fldInfo = typeof(ClaimTypes).GetFields(BindingFlags.Static | BindingFlags.Public);
-            _claimTypes = fldInfo.ToDictionary(i => i.Name, i => (string)i.GetValue(null));
+            _claimTypes = fldInfo.ToDictionary(i => i.Name, i => (string?)i.GetValue(null));
         }
 
         [Authorize(Policy = "OnlyAdmins")]
@@ -51,8 +51,11 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
 
             string filter = search["value"];
             var qry = users.Where(u =>
-                (String.IsNullOrWhiteSpace(filter) || u.Email.Contains(filter)) ||
-                (String.IsNullOrWhiteSpace(filter) || u.UserName.Contains(filter))
+                u != null && (
+                    string.IsNullOrWhiteSpace(filter)
+                    || u.Email!.Contains(filter)
+                    || u.UserName!.Contains(filter)
+                )
             );
 
             var idx = Int32.Parse(order[0]["column"]);
@@ -74,10 +77,10 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
                     Id = u.Id,
                     Email = u.Email,
                     LockedOut = u.LockoutEnd == null ? String.Empty : "Yes",
-                    Roles = u.Roles.Select(r => _roles[r.RoleId]),
+                    Roles = u.Roles!.Select(r => _roles[r.RoleId]),
                     //Key/Value props not camel cased (https://github.com/dotnet/corefx/issues/41309)
-                    Claims = u.Claims.Select(c => new KeyValuePair<string, string>(_claimTypes.Single(x => x.Value == c.ClaimType).Key, c.ClaimValue)),
-                    DisplayName = u.Claims.FirstOrDefault(c => c.ClaimType == ClaimTypes.Name)?.ClaimValue,
+                    Claims = u.Claims!.Select(c => new KeyValuePair<string, string?>(_claimTypes.Single(x => x.Value == c.ClaimType).Key, c.ClaimValue)),
+                    DisplayName = u.Claims!.FirstOrDefault(c => c.ClaimType == ClaimTypes.Name)?.ClaimValue,
                     UserName = u.UserName
                 })
             };
@@ -92,14 +95,14 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
             try
             {
                 // pretend email is confirmed, because of demo environment
-                var user = new ApplicationUser() { Email = email, UserName = userName, EmailConfirmed=true };
+                var user = new ApplicationUser() { Email = email, UserName = userName, EmailConfirmed = true };
 
                 var result = await _userManager.CreateAsync(user, password);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("Created user {userName}.", userName);
 
-                    
+
                     if (name != null)
                         await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
 
@@ -143,12 +146,14 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
 
                     var userClaims = await _userManager.GetClaimsAsync(user);
 
-                    foreach (var kvp in claims.Where(a => !userClaims.Any(b => _claimTypes[a.Key] == b.Type && a.Value == b.Value)))
-                        await _userManager.AddClaimAsync(user, new Claim(_claimTypes[kvp.Key], kvp.Value));
+                    if (_claimTypes != null)
+                    {
+                        foreach (var kvp in claims.Where(a => !userClaims.Any(b => _claimTypes[a.Key] == b.Type && a.Value == b.Value)))
+                            await _userManager.AddClaimAsync(user, new Claim(_claimTypes[kvp.Key] ?? "", kvp.Value));
 
-                    foreach (var claim in userClaims.Where(a => !claims.Any(b => a.Type == _claimTypes[b.Key] && a.Value == b.Value)))
-                        await _userManager.RemoveClaimAsync(user, claim);
-
+                        foreach (var claim in userClaims.Where(a => !claims.Any(b => a.Type == _claimTypes[b.Key] && a.Value == b.Value)))
+                            await _userManager.RemoveClaimAsync(user, claim);
+                    }
                     return NoContent();
                 }
                 else
@@ -226,10 +231,10 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
 
             string filter = search["value"];
             var qry = roles.Where(r =>
-                (String.IsNullOrWhiteSpace(filter) || r.Name.Contains(filter))
+                string.IsNullOrWhiteSpace(filter) || (r!.Name != null && r.Name!.Contains(filter))
             );
 
-            var idx = Int32.Parse(order[0]["column"]);
+            var idx = int.Parse(order[0]["column"]);
             var dir = order[0]["dir"];
             var col = columns[idx]["data"];
 
@@ -248,7 +253,7 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
                     Id = r.Id,
                     Name = r.Name,
                     //Key/Value props not camel cased (https://github.com/dotnet/corefx/issues/41309)
-                    Claims = r.Claims.Select(c => new KeyValuePair<string, string>(_claimTypes.Single(x => x.Value == c.ClaimType).Key, c.ClaimValue))
+                    Claims = r.Claims.Select(c => new KeyValuePair<string, string?>(_claimTypes.Single(x => x.Value == c.ClaimType).Key, c.ClaimValue))
                 })
             };
 
@@ -298,11 +303,14 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
 
                     var roleClaims = await _roleManager.GetClaimsAsync(role);
 
-                    foreach (var kvp in claims.Where(a => !roleClaims.Any(b => _claimTypes[a.Key] == b.Type && a.Value == b.Value)))
-                        await _roleManager.AddClaimAsync(role, new Claim(_claimTypes[kvp.Key], kvp.Value));
+                    if (_claimTypes != null)
+                    {
+                        foreach (var kvp in claims.Where(a => !roleClaims.Any(b => _claimTypes[a.Key] == b.Type && a.Value == b.Value)))
+                            await _roleManager.AddClaimAsync(role, new Claim(_claimTypes[kvp!.Key] ?? "", kvp.Value));
 
-                    foreach (var claim in roleClaims.Where(a => !claims.Any(b => a.Type == _claimTypes[b.Key] && a.Value == b.Value)))
-                        await _roleManager.RemoveClaimAsync(role, claim);
+                        foreach (var claim in roleClaims.Where(a => !claims.Any(b => a.Type == _claimTypes[b.Key] && a.Value == b.Value)))
+                            await _roleManager.RemoveClaimAsync(role, claim);
+                    }
 
                     return NoContent();
                 }

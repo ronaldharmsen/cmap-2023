@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IdentityManagerUI
 {
@@ -18,14 +14,13 @@ namespace IdentityManagerUI
         public PolicyTagHelper(IAuthorizationService authService, IHttpContextAccessor httpContextAccessor)
         {
             _authService = authService;
-            _principal = httpContextAccessor.HttpContext.User;
+            _principal = httpContextAccessor.HttpContext!.User;
         }
 
-        public string Policy { get; set; }
+        public string Policy { get; set; } = string.Empty;
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
-            // if (!await _authService.AuthorizeAsync(_principal, Policy)) ASP.NET Core 1.x
             if (!(await _authService.AuthorizeAsync(_principal, Policy)).Succeeded)
                 output.SuppressOutput();
         }
@@ -33,8 +28,8 @@ namespace IdentityManagerUI
     
     internal class ModalContext
     {
-        public IHtmlContent Body { get; set; }
-        public IHtmlContent Footer { get; set; }
+        public IHtmlContent? Body { get; set; }
+        public IHtmlContent? Footer { get; set; }
     }
 
     public enum ModalSize { Default, Small, Large }
@@ -44,9 +39,9 @@ namespace IdentityManagerUI
     {
         public ModalSize Size { get; set; }
 
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
@@ -106,7 +101,7 @@ namespace IdentityManagerUI
     [HtmlTargetElement("modal-footer", ParentTag = "modal")]
     public class ModalFooterTagHelper : TagHelper
     {
-        public string DismissText { get; set; }
+        public string DismissText { get; set; } = string.Empty;
 
         public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
