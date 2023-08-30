@@ -14,11 +14,14 @@ public class HomeController : Controller
     }
 
     public IActionResult Index()
-    {
-        var x = User;
+    {        
         return View();
     }
 
+    public string Test() {
+        return User.Identity.IsAuthenticated.ToString();
+    }
+    
     public IActionResult Privacy()
     {
         return View();

@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.AspNetCore.Identity;
 using Keycloak.AuthServices.Authentication;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("appIdentityDbContextConnection") ?? throw new InvalidOperationException("Connection string 'appIdentityDbContextConnection' not found.");
@@ -17,63 +18,37 @@ builder.Services.AddDbContext<VehicleContext>(options => options.UseSqlServer(co
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
 builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = "Cookies";
+        options.DefaultChallengeScheme = "oidc";
+    })
+    .AddCookie("Cookies")
+    .AddOpenIdConnect("oidc", options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.Authority = builder.Configuration["jwt:Authority"];
+        options.ClientId = builder.Configuration["jwt:Audience"];
+        options.ClientSecret = builder.Configuration["jwt:Secret"];
+
+        options.MetadataAddress = builder.Configuration["jwt:MetaData"];
+
+        options.ResponseType = "code";
+
+        options.Scope.Clear();
+        options.Scope.Add("openid");
+        options.Scope.Add("profile");
+
+        options.SaveTokens = true;
+
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            //Sets cookie authentication scheme
-            options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-        })
-
-        .AddCookie(cookie =>
-        {
-            //Sets the cookie name and maxage, so the cookie is invalidated.
-            cookie.Cookie.Name = "keycloak.cookie";
-            cookie.Cookie.MaxAge = TimeSpan.FromMinutes(60);
-            cookie.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-            cookie.SlidingExpiration = true;
-        })
-        .AddOpenIdConnect(options =>
-        {
-            //Use default signin scheme
-            options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //Keycloak server
-            options.Authority = builder.Configuration["jwt:Authority"];
-            //Keycloak client ID
-            options.ClientId = builder.Configuration["jwt:Audience"];
-            //Keycloak client secret
-            options.ClientSecret = builder.Configuration["jwt:Secret"];
-
-            //Require keycloak to use SSL
-            options.SaveTokens = true;
-            options.RequireHttpsMetadata = false;
-            //options.GetClaimsFromUserInfoEndpoint = true;
-            options.Scope.Add("openid");
-            options.Scope.Add("profile");
-            options.Scope.Add("email");
-
-            //Save the token
-            options.SaveTokens = true;
-            //Token response type, will sometimes need to be changed to IdToken, depending on config.
-            options.ResponseType = OpenIdConnectResponseType.Code;
-            //SameSite is needed for Chrome/Firefox, as they will give http error 500 back, if not set to unspecified.
-            options.NonceCookie.SameSite = SameSiteMode.None;
-            options.CorrelationCookie.SameSite = SameSiteMode.None;
-
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                NameClaimType = "name",
-                RoleClaimType = "https://schemas.scopic.com/roles"
-            };
-
-            //builder.Configuration.Bind("<Json Config Filter>", options);
-            options.Events.OnRedirectToIdentityProvider = async context =>
-            {
-                context.ProtocolMessage.RedirectUri = "https://localhost:7002/";
-                await Task.FromResult(0);
-            };
-
-        });
+            NameClaimType = "email",
+            RoleClaimType = "role"
+        };
+    });
 
 builder.Services.AddHttpContextAccessor();
 
