@@ -60,7 +60,7 @@ namespace app.ApiDemo
         [HttpPost("{id}/lock")]
         public async Task<ActionResult<Vehicle>> LockVehicle(string id)
         {
-            var vehicle = await _context.Vehicles.FindAsync(id);
+            var vehicle = await GetOwnedVehicle(id);
 
             if (vehicle == null)
             {
@@ -76,7 +76,7 @@ namespace app.ApiDemo
         [HttpPost("{id}/unlock")]
         public async Task<ActionResult<Vehicle>> UnlockVehicle(string id)
         {
-            var vehicle = await _context.Vehicles.FindAsync(id);
+            var vehicle = await GetOwnedVehicle(id);
 
             if (vehicle == null)
             {
@@ -93,7 +93,7 @@ namespace app.ApiDemo
         [HttpPost("{id}/start")]
         public async Task<ActionResult<Vehicle>> StartVehicle(string id)
         {
-            var vehicle = await _context.Vehicles.FindAsync(id);
+            var vehicle = await GetOwnedVehicle(id);
 
             if (vehicle == null)
             {

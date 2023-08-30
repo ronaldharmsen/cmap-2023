@@ -192,6 +192,7 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
             }
         }
 
+        //[Authorize(Policy ="OnlyAdmins")]
         [HttpPost("api/[action]")]
         public async Task<IActionResult> ResetPassword(string id, string password, string verify)
         {
