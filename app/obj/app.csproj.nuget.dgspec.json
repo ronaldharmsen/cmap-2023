@@ -43,6 +43,14 @@
               "target": "Package",
               "version": "[3.2.1, )"
             },
+            "Keycloak.AuthServices.Authentication": {
+              "target": "Package",
+              "version": "[1.5.2, )"
+            },
+            "Microsoft.AspNetCore.Authentication.OpenIdConnect": {
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
               "version": "[7.0.10, )"

@@ -17,7 +17,7 @@
 			"settings": { 
 				"mssql.connections": [
 					{
-						"server": "localhost,1433",
+						"server": "db",
 						"database": "",
 						"authenticationType": "SqlLogin",
 						"user": "sa",
@@ -38,11 +38,11 @@
 	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [5000, 5001],
+	"forwardPorts": ["keycloak:8080", 8080],
 	// "portsAttributes": {
-	//		"5001": {
-	//			"protocol": "https"
-	//		}
+	// 		"5001": {
+	// 			"protocol": "https"
+	// 		}
 	// }
 
 	// postCreateCommand.sh parameters: $1=SA password, $2=dacpac path, $3=sql script(s) path

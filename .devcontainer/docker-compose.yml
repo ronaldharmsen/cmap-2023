@@ -28,5 +28,16 @@ services:
       SA_PASSWORD: P@ssw0rd
       ACCEPT_EULA: Y
 
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.1
+    restart: unless-stopped
+    command: ['start-dev']
+    ports:
+      - "8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin 
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      
     # Add "forwardPorts": ["1433"] to **devcontainer.json** to forward MSSQL locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
