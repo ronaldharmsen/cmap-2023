@@ -1,14 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using ApiDemo;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.AspNetCore.Identity;
-using Keycloak.AuthServices.Authentication;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("appIdentityDbContextConnection") ?? throw new InvalidOperationException("Connection string 'appIdentityDbContextConnection' not found.");
@@ -18,7 +14,7 @@ builder.Services.AddDbContext<VehicleContext>(options => options.UseSqlServer(co
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+//JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
 builder.Services.AddAuthentication(options =>
     {
@@ -43,9 +39,11 @@ builder.Services.AddAuthentication(options =>
 
         options.SaveTokens = true;
 
+        options.ClaimActions.MapUniqueJsonKey(ClaimTypes.Role, "role");
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            NameClaimType = "email",
+            NameClaimType = ClaimTypes.Email,
             RoleClaimType = "role"
         };
     });
@@ -56,7 +54,7 @@ builder.Services.AddAuthorization()
     .AddAuthorization(options =>
 {
     options.AddPolicy("OnlyAdmins", policy =>
-        policy.RequireClaim(ClaimTypes.Role, "Admin")
+        policy.RequireClaim(ClaimTypes.Role, "Admin") 
     );
 
     options.AddPolicy("AuthenticatedUser", policy =>
